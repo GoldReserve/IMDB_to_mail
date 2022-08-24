@@ -2,6 +2,8 @@ import time
 import requests
 import json
 
+import yagmail
+
 
 def isfloat(num):
     try:
@@ -60,13 +62,13 @@ def popular():
 """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в 
 определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
 
-# yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
-# context = ['Привет это 1 тестовое сообщение']
-# yag.send(to='alamana13@mail.ru', subject='test', contents=context)
-
+yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
+context = ['Вот тебе фотка николь']
+# В приемере ниже всё работает и отправляет фотку как бы при помощи html
+yag.send('alamana13@mail.ru', 'test', '<img src="https://webpulse.imgsmail.ru/imgpreview?key=pic1325367343857297001&mb=pulse&fu=1&kr=1&h=355&w=630"/>')
 
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    popular()
+# if __name__ == '__main__':
+#     popular()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
