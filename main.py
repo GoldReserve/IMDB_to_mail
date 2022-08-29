@@ -10,6 +10,7 @@ import imdb_api_key
 import yagmail
 import ResizeImg
 
+
 def timeit(func):
     @wraps(func)
     def timeit_wrapper(*args, **kwargs):
@@ -19,7 +20,9 @@ def timeit(func):
         total_time = end_time - start_time
         print(f'Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds')
         return result
+
     return timeit_wrapper
+
 
 def isfloat(num):
     try:
@@ -108,31 +111,35 @@ def show(x: dict):
 
 
 def complete_dict_with_filtered_films() -> dict:
-    #TODO Здесь необходимо реализовать алгоритм запоминающий какие фильмы мы уже отправляли что не было потворов
+    # TODO Здесь необходимо реализовать алгоритм запоминающий какие фильмы мы уже отправляли что не было потворов
     complete_dict = {}
     y = filter_by_rating()
     # Делаем z словарем
     z = film(y[randint(1, len(y))]['id'], False)
     return z
 
+
 @timeit
 def send_email():
     x = complete_dict_with_filtered_films()
-    def stars_img()->list:
+
+    def stars_img() -> list:
         return [i['image'] for i in x['actorList'] if i['name'] in x['stars']]
+
     stars_img_lst = stars_img()
     yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
     """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в
     определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
     ResizeImg.ResizeImg.resize_complete(x['image'])
+    k = ''
+    for url in stars_img_lst:
+        k += f'<img src="{url}" width="200" height="200">'
     content = [
         f'<h2>{x["fullTitle"]}\n</h2>', yagmail.inline("./resized_poster.jpg"),
         f'\n<i>{x["plot"]}</i>\n'
         f'\n<b>Cast: </b>{x["stars"]}\n'
-        #Вот сюда хотелось бы вставить фотки актеров
-        f'<img src="{stars_img_lst[0]}" alt="Фотография 1" width="200" height="200">'
-        f'<img src="{stars_img_lst[1]}" alt="Фотография 2" width="200" height="200">'
-        f'<img src="{stars_img_lst[2]}]" alt="Фотография 3" width="200" height="200">\n'
+        # Вот сюда хотелось бы вставить фотки актеров
+        f'{k}'
         f'\n<b>Trailer: </b>{x["videoUrl"]}'
         f'\n<b>Companies: </b>{x["companies"]}'
         f'\n<b>imDbRating: </b>{x["imDbRating"]}'
@@ -146,7 +153,6 @@ def send_email():
     os.remove('resized_poster.jpg')
 
 
-
 if __name__ == '__main__':
     send_email()
     # while True:
@@ -156,3 +162,5 @@ if __name__ == '__main__':
     #     except Exception as e:
     #         print(f'Oops we hava exception ---> {e}')
     #         continue
+
+#+фича Поиск фильма по совпадению запроса пользователя
