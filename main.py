@@ -59,7 +59,7 @@ def filter_by_rating() -> dict:
     # Тепрь нужно из списка со словарями удалить те, что не подходят нам по рейтингу
     for i in range(len(x)):
         try:
-            if float(x[i]['imDbRating']) < 6.5 or int(x[i]['imDbRatingCount']) < 50000 or int(x[i]['year']) < 2018:
+            if int(x[i]['year']) < 2018 and float(x[i]['imDbRating']) < 6.5 or int(x[i]['imDbRatingCount']) < 50000:
                 del x[i]
         except Exception as e:
             # print(f'Oops we have exception {e}')
@@ -108,6 +108,7 @@ def show(x: dict):
 
 
 def complete_dict_with_filtered_films() -> dict:
+    #TODO Здесь необходимо реализовать алгоритм запоминающий какие фильмы мы уже отправляли что не было потворов
     complete_dict = {}
     y = filter_by_rating()
     # Делаем z словарем
@@ -117,6 +118,9 @@ def complete_dict_with_filtered_films() -> dict:
 @timeit
 def send_email():
     x = complete_dict_with_filtered_films()
+    def stars_img()->list:
+        return [i['image'] for i in x['actorList'] if i['name'] in x['stars']]
+    stars_img_lst = stars_img()
     yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
     """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в
     определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
@@ -124,9 +128,11 @@ def send_email():
     content = [
         f'<h2>{x["fullTitle"]}\n</h2>', yagmail.inline("./resized_poster.jpg"),
         f'\n<i>{x["plot"]}</i>\n'
-        f'\n<b>Cast: </b>{x["stars"]}'
+        f'\n<b>Cast: </b>{x["stars"]}\n'
         #Вот сюда хотелось бы вставить фотки актеров
-        
+        f'<img src="{stars_img_lst[0]}" alt="Фотография 1" width="200" height="200">'
+        f'<img src="{stars_img_lst[1]}" alt="Фотография 2" width="200" height="200">'
+        f'<img src="{stars_img_lst[2]}]" alt="Фотография 3" width="200" height="200">\n'
         f'\n<b>Trailer: </b>{x["videoUrl"]}'
         f'\n<b>Companies: </b>{x["companies"]}'
         f'\n<b>imDbRating: </b>{x["imDbRating"]}'
