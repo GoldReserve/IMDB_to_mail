@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 from functools import wraps
@@ -9,7 +10,8 @@ import json
 import imdb_api_key
 import yagmail
 import ResizeImg
-
+import csv
+from csv import reader
 
 def timeit(func):
     @wraps(func)
@@ -59,13 +61,14 @@ def filter_by_rating() -> dict:
     x = request_popular()
     # Переходим к самим словарям
     x = x['items']
-
+    year = datetime.date.today().year
     # Тепрь нужно из списка со словарями удалить те, что не подходят нам по рейтингу
     # И вот тут как раз главная проблема. Лист со словарями по мере удаления уменьшается а мы то считаем с 1 до 100
     # Поэтому просто ut of range . Нужно каждый последующий фильм или через next доставать или как-то еще
     for count, i in enumerate(x):
         try:
-            if int(i['year']) < 2018:
+            # Сделал проверку на вышел ли фильм или еще нет
+            if int(i['year']) < 2018 or int(i['year']) > year:
                 del x[count]
             elif float(i['imDbRating']) < 6.5:
                 del x[count]
@@ -121,11 +124,28 @@ def show(x: dict):
 
 def complete_dict_with_filtered_films() -> dict:
     # TODO Здесь необходимо реализовать алгоритм запоминающий какие фильмы мы уже отправляли что не было потворов
-    complete_dict = {}
     y = filter_by_rating()
     # Делаем z словарем
-    z = film(y[randint(1, len(y))]['id'], False)
-    return z
+    def check_for_repeat():
+        # Мы получаем фильм
+        z = film(y[randint(1, len(y))]['id'], False)
+
+        # Присваиваем название переменной чтобы потом если что его записать
+        film_id = [z['fullTitle']]
+
+        #Открываем файл чтобы чекнуть есть ли там фильм
+        with open('already_added_films.csv', 'r') as read_obj:
+            csv_reader = reader(read_obj)
+            for i in csv_reader:
+                if film_id == i:
+                    print('Этот фильм уже был отправлен')
+                    check_for_repeat()
+            with open('already_added_films.csv', 'a', newline='', encoding='utf-8') as csvfile:
+                x = csv.writer(csvfile)
+                x.writerow(film_id)
+        return z
+
+    return check_for_repeat()
 
 
 @timeit
