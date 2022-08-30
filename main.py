@@ -59,11 +59,20 @@ def filter_by_rating() -> dict:
     x = request_popular()
     # Переходим к самим словарям
     x = x['items']
+
     # Тепрь нужно из списка со словарями удалить те, что не подходят нам по рейтингу
-    for i in range(len(x)):
+    # И вот тут как раз главная проблема. Лист со словарями по мере удаления уменьшается а мы то считаем с 1 до 100
+    # Поэтому просто ut of range . Нужно каждый последующий фильм или через next доставать или как-то еще
+    for count, i in enumerate(x):
         try:
-            if int(x[i]['year']) < 2018 and float(x[i]['imDbRating']) < 6.5 or int(x[i]['imDbRatingCount']) < 50000:
-                del x[i]
+            if int(i['year']) < 2018:
+                del x[count]
+            elif float(i['imDbRating']) < 6.5:
+                del x[count]
+            elif int(i['imDbRatingCount']) < 20000:
+                del x[count]
+        except ValueError:
+            del x[count]
         except Exception as e:
             # print(f'Oops we have exception {e}')
             continue
@@ -132,14 +141,16 @@ def send_email():
     определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
     ResizeImg.ResizeImg.resize_complete(x['image'])
     k = ''
+
     for url in stars_img_lst:
-        k += f'<img src="{url}" width="200" height="200">'
+        k += f'<img src="{url}" width="150" height="200">'
     content = [
         f'<h2>{x["fullTitle"]}\n</h2>', yagmail.inline("./resized_poster.jpg"),
         f'\n<i>{x["plot"]}</i>\n'
         f'\n<b>Cast: </b>{x["stars"]}\n'
         # Вот сюда хотелось бы вставить фотки актеров
         f'{k}'
+        f'\n<b>Genres: </b>{x["genres"]}'
         f'\n<b>Trailer: </b>{x["videoUrl"]}'
         f'\n<b>Companies: </b>{x["companies"]}'
         f'\n<b>imDbRating: </b>{x["imDbRating"]}'
@@ -163,4 +174,4 @@ if __name__ == '__main__':
     #         print(f'Oops we hava exception ---> {e}')
     #         continue
 
-#+фича Поиск фильма по совпадению запроса пользователя
+
