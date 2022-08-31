@@ -1,13 +1,13 @@
 import os
-
 import PIL
 from PIL import Image
 import urllib.request
 
 
 class ResizeImg:
+    #Изначальная функция которая делала resize без сохрания соотношения сторон
     @staticmethod
-    def my_resize():
+    def my_resize() -> None:
         # Мы делаем запрос и сохраняем пикчу
         urllib.request.urlretrieve(
             'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVu'
@@ -16,8 +16,8 @@ class ResizeImg:
         # Открываем картинку
         img = Image.open("poster.png")
 
-        # Метод чтобы открыть её и увидеть
-        # img.show()
+        # Метод, чтобы открыть её и увидеть
+        img.show()
 
         # Меняет размер на необходимый
         resized_image = img.resize((320, 320))
@@ -30,13 +30,13 @@ class ResizeImg:
         :return: Ничего, но создает файл resized_poster.jpg из исходного файла в рабочей директории.
         """
 
-        #Делаем запрос и скачивает с url картинку в рабочую директорию
+        # Делаем запрос и скачивает с url картинку в рабочую директорию
         urllib.request.urlretrieve(
             url, 'poster.png')
         mywidth = 1024
         img = Image.open('poster.png')
 
-        #Дальше мы делаем resize да так чтобы исходное соотношение сторон не менялось.
+        # Дальше мы делаем resize да так, чтобы исходное соотношение сторон не менялось.
         wpercent = (mywidth / float(img.size[0]))
         hsize = int((float(img.size[1]) * float(wpercent)))
 
@@ -46,7 +46,3 @@ class ResizeImg:
 
         # Удаляем изначально скаченный файл
         os.remove('poster.png')
-
-ResizeImg.resize_complete('https://proxy.imgsmail.ru/?e=1662022091&email=alamana13%40mail.ru&flags=0&h=-9ue7IyCQA-o5jxBUfIzvw&is_https=1&url173=bS5tZWRpYS1hbWF6b24uY29tL2ltYWdlcy9NL01WNUJNelZsTW1ZMk5UY3RPRGd3T0MwME5ETXpMV0V6TVdZdE0yUmlZbUl5TlROaE1USTBYa0V5WGtGcWNHZGVRWFZ5TlRBek56Z3dOVGdALl9WMV9SYXRpbzAuNjc2Ml9BTF8uanBn')
-
-
