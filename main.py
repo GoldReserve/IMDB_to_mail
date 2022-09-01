@@ -11,6 +11,11 @@ import ResizeImg
 import csv
 from csv import reader
 
+#В pythonanywhere не проходит запрос из-за прокси поэтому их нужно прописать на нужные
+proxies = {
+   'http': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
+   'https': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
+}
 
 # Простенький таймер, чтобы использовать декоратор
 def timeit(func):
@@ -187,9 +192,9 @@ def send_email():
         f'\n<b>metacriticRating: </b>{x["metacriticRating"]}'
         f'\n<b>boxOffice: </b>Budget: {x["boxOffice"]["budget"]}']
 
-    # В примере ниже всё работает и отправляет фотку как бы при помощи html
+    #TODO добавить сюда интерфейс позволяющий добавлять еще email адреса
     try:
-        yag.send('alamana13@mail.ru', 'Film', content)
+        yag.send('alamana13@mail.ru', 'Popular film', content)
         print('Cообщение отправлено')
         os.remove('resized_poster.jpg')
     except Exception as e:
@@ -209,6 +214,8 @@ if __name__ == '__main__':
         except IndexError:
             print('Похоже что количество запросов к базе исчерпалось. Ждем 8 часов')
             time.sleep(28800)
+
+        # Ну а на случай если я чего-то не предусмотрел вставим просто Exception
         except Exception as e:
             print(f'Ошибка! {e}')
             continue
