@@ -135,7 +135,12 @@ def complete_dict_with_filtered_films() -> dict:
     def check_for_repeat():
 
         # Мы получаем фильм
-        z = film(y[randint(1, 30)]['id'], False)
+        try:
+            z = film(y[randint(1, 30)]['id'], False)
+        except Exception as e:
+            print(f'Ошибка! {e}')
+            print('Мб здесь проблема?')
+            time.sleep(10)
 
         # Присваиваем название переменной чтобы потом использовать его
         film_id = [z['fullTitle']]
@@ -166,12 +171,6 @@ def send_email():
 
     # На данный момент функция не используется потому что изображения получаются кривыми и если
     # их вставлять то через pillow
-    def stars_img() -> list:
-        """
-        :return list url изображений актеров которые являются "звездами" фильма, а не просто всех актеров
-        изначально нужно было для подгрузки миниатюр фото к фильмам.
-        """
-        return [i['image'] for i in x['actorList'] if i['name'] in x['stars']]
 
     yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
     """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в
@@ -181,8 +180,6 @@ def send_email():
         f'<h2>{x["fullTitle"]}\n</h2>', yagmail.inline("./resized_poster.jpg"),
         f'\n<i>{x["plot"]}</i>\n'
         f'\n<b>Cast: </b>{x["stars"]}'
-
-        # Вот сюда хотелось бы вставить еще и фотки актеров
         f'\n<b>Genres: </b>{x["genres"]}'
         f'\n<b>Runtime: </b>{x["runtimeMins"]}'
         f'\n<b>Trailer: </b>{x["videoUrl"]}'
@@ -194,8 +191,9 @@ def send_email():
 
     #TODO добавить сюда интерфейс позволяющий добавлять еще email адреса
     try:
+        e = datetime.datetime.now()
         yag.send('alamana13@mail.ru', 'Popular film', content)
-        print('Cообщение отправлено')
+        print(e.strftime("%Y-%m-%d %H:%M:%S"), f'Фильм {x["fullTitle"]} отправлен')
         os.remove('resized_poster.jpg')
     except Exception as e:
         print(f'Ошибка! {e}')
@@ -207,7 +205,7 @@ if __name__ == '__main__':
             send_email()
 
             # Здесь прописать частоту отправки email с фильмов в секундах 86400 это сутки
-            time.sleep(86400)
+            time.sleep(7200)
 
         # Эта ошибка вылетает когда imdb не дает больше обращаться.
         # Поэтому заставлю поспать 8 часов и затем попробовать еще
