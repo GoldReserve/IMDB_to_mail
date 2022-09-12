@@ -12,9 +12,7 @@ class ResizeImg:
         :param url: Ссылка на картинку любого формата
         :return: Ничего, но создает файл resized_poster.jpg из исходного файла в рабочей директории.
         """
-
-        r = requests.get(url,
-                         stream=True, headers={'User-agent': 'Mozilla/5.0'})
+        r = requests.get(url, stream=True, headers={'User-agent': 'Mozilla/5.0'})
         if r.status_code == 200:
             with open("poster.png", 'wb') as f:
                 r.raw.decode_content = True
@@ -32,5 +30,7 @@ class ResizeImg:
 
         # Удаляем изначально скаченный файл
         os.remove('poster.png')
+
+ResizeImg.resize_complete('')
 
 

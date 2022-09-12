@@ -11,11 +11,12 @@ import ResizeImg
 import csv
 from csv import reader
 
-#В pythonanywhere не проходит запрос из-за прокси поэтому их нужно прописать на нужные
+# В pythonanywhere не проходит запрос из-за прокси поэтому их нужно прописать на нужные
 proxies = {
-   'http': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
-   'https': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
+    'http': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
+    'https': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
 }
+
 
 # Простенький таймер, чтобы использовать декоратор
 def timeit(func):
@@ -175,9 +176,9 @@ def send_email():
     yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
     """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в
     определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
-    ResizeImg.ResizeImg.resize_complete(x['image'])
+    # ResizeImg.ResizeImg.resize_complete(x['image'])
     content = [
-        f'<h2>{x["fullTitle"]}\n</h2>', yagmail.inline("./resized_poster.jpg"),
+        f'<h2>{x["fullTitle"]}\n</h2>',
         f'\n<i>{x["plot"]}</i>\n'
         f'\n<b>Cast: </b>{x["stars"]}'
         f'\n<b>Genres: </b>{x["genres"]}'
@@ -189,31 +190,30 @@ def send_email():
         f'\n<b>metacriticRating: </b>{x["metacriticRating"]}'
         f'\n<b>boxOffice: </b>Budget: {x["boxOffice"]["budget"]}']
 
-    #TODO добавить сюда интерфейс позволяющий добавлять еще email адреса
+    # TODO добавить сюда интерфейс позволяющий добавлять еще email адреса
     try:
         e = datetime.datetime.now()
         yag.send('alamana13@mail.ru', 'Popular film', content)
         print(e.strftime("%Y-%m-%d %H:%M:%S"), f'Фильм {x["fullTitle"]} отправлен')
-        os.remove('resized_poster.jpg')
+        # os.remove('resized_poster.jpg')
     except Exception as e:
         print(f'Ошибка! {e}')
 
 
-if __name__ == '__main__':
-    while True:
-        try:
-            send_email()
+while True:
+    try:
+        send_email()
 
-            # Здесь прописать частоту отправки email с фильмов в секундах 86400 это сутки
-            time.sleep(10)
+        # Здесь прописать частоту отправки email с фильмов в секундах 86400 это сутки
+        time.sleep(10)
 
-        # Эта ошибка вылетает когда imdb не дает больше обращаться.
-        # Поэтому заставлю поспать 8 часов и затем попробовать еще
-        except IndexError:
-            print('Похоже что количество запросов к базе исчерпалось. Ждем 8 часов')
-            time.sleep(28800)
+    # Эта ошибка вылетает когда imdb не дает больше обращаться.
+    # Поэтому заставлю поспать 8 часов и затем попробовать еще
+    except IndexError:
+        print('Похоже что количество запросов к базе исчерпалось. Ждем 8 часов')
+        time.sleep(28800)
 
-        # Ну а на случай если я чего-то не предусмотрел вставим просто Exception
-        except Exception as e:
-            print(f'Ошибка! {e}')
-            continue
+    # Ну а на случай если я чего-то не предусмотрел вставим просто Exception
+    except Exception as e:
+        print(f'Ошибка! {e}')
+        continue
