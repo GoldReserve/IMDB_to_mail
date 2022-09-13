@@ -1,16 +1,15 @@
 import datetime
-import os
 import time
 from functools import wraps
 from random import randint
 import requests
 import json
-import email
+import email_log_pass
 import imdb_api_key
 import yagmail
-import ResizeImg
 import csv
 from csv import reader
+
 
 
 # Простенький таймер, чтобы использовать декоратор
@@ -27,7 +26,6 @@ def timeit(func):
     return timeit_wrapper
 
 
-# Самый первый мой запрос в базу который вытаскивает популярные фильмы
 def request_popular():
     url = f"https://imdb-api.com/en/API/MostPopularMovies/{imdb_api_key.api_key}"
     payload, headers = {}, {}
@@ -155,7 +153,7 @@ def send_email():
     # На данный момент функция не используется потому что изображения получаются кривыми и если
     # их вставлять то через pillow
 
-    yag = yagmail.SMTP(user=email.sender_email, password=email.sender_app_pass)
+    yag = yagmail.SMTP(user=email_log_pass.sender_email, password=email_log_pass.sender_app_pass)
     """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в
     определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
     content = [
@@ -173,9 +171,8 @@ def send_email():
 
     try:
         e = datetime.datetime.now()
-        yag.send(email.receive_email, 'Popular film', content)
+        yag.send(email_log_pass.receive_email, 'Popular film', content)
         print(e.strftime("%Y-%m-%d %H:%M:%S"), f'Фильм {x["fullTitle"]} отправлен')
-        # os.remove('resized_poster.jpg')
     except Exception as e:
         print(f'Ошибка! {e}')
 
