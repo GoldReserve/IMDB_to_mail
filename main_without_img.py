@@ -5,17 +5,12 @@ from functools import wraps
 from random import randint
 import requests
 import json
+import email
 import imdb_api_key
 import yagmail
 import ResizeImg
 import csv
 from csv import reader
-
-# В pythonanywhere не проходит запрос из-за прокси поэтому их нужно прописать на нужные
-proxies = {
-    'http': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
-    'https': 'https://imdb-api.com/en/API/MostPopularMovies/:3128',
-}
 
 
 # Простенький таймер, чтобы использовать декоратор
@@ -62,9 +57,7 @@ def filter_by_rating() -> dict:
     x = x['items']
     year = datetime.date.today().year
 
-    # Тепрь нужно из списка со словарями удалить те, что не подходят нам по рейтингу
-    # И вот тут как раз главная проблема. Лист со словарями по мере удаления уменьшается, а мы то считаем с 1 до 100
-    # Поэтому просто ut of range. Нужно каждый последующий фильм или через next доставать или как-то еще
+    # Теперь нужно из списка со словарями удалить те, что не подходят нам по рейтингу
     for count, i in enumerate(x):
         try:
             if int(i['year']) < 2018 or int(i['year']) > year:
@@ -118,17 +111,6 @@ def film(id_of_film: str, str_or_dict) -> dict:
     return json_formatted_str if str_or_dict else film_dict
 
 
-def show(x: dict):
-    for key, value in x.items():
-        try:
-            if key in ('id', 'fullTitle', 'year', 'image', 'releaseDate', 'runtimeMins', 'plot', 'awards', 'directors',
-                       'stars', 'genres', 'companies', 'languages', 'contentRating', 'imDbRating', 'imDbRatingVotes',
-                       'metacriticRating', 'trailer', 'boxOffice', 'videoUrl', 'starList'):
-                print(f'{key} ---> {value}')
-        except Exception as e:
-            print(f'Ooops where have exception {e}')
-
-
 def complete_dict_with_filtered_films() -> dict:
     y = filter_by_rating()
 
@@ -173,10 +155,9 @@ def send_email():
     # На данный момент функция не используется потому что изображения получаются кривыми и если
     # их вставлять то через pillow
 
-    yag = yagmail.SMTP(user='tet.yag2022', password='jmzbgylqzquygkih')
+    yag = yagmail.SMTP(user=email.sender_email, password=email.sender_app_pass)
     """Код ниже отправляет email. Я создал ящик на gmail чтобы отправлять всякое. Мне понадобится отправлять письмо в
     определенном формате чтобы это выглядело классно. Т е постер фильма, каст, актеры и т.п."""
-    # ResizeImg.ResizeImg.resize_complete(x['image'])
     content = [
         f'<h2>{x["fullTitle"]}\n</h2>',
         f'\n<i>{x["plot"]}</i>\n'
@@ -190,10 +171,9 @@ def send_email():
         f'\n<b>metacriticRating: </b>{x["metacriticRating"]}'
         f'\n<b>boxOffice: </b>Budget: {x["boxOffice"]["budget"]}']
 
-    # TODO добавить сюда интерфейс позволяющий добавлять еще email адреса
     try:
         e = datetime.datetime.now()
-        yag.send('alamana13@mail.ru', 'Popular film', content)
+        yag.send(email.receive_email, 'Popular film', content)
         print(e.strftime("%Y-%m-%d %H:%M:%S"), f'Фильм {x["fullTitle"]} отправлен')
         # os.remove('resized_poster.jpg')
     except Exception as e:
